@@ -22,7 +22,7 @@ class ActionScraper{
         this._initEos(eosconfig);
         this.contract = contractname;
         this.actionhandler = actionhandler;
-        this.batch_size = 1; //number of actions to get in each loop max:1000 TODO: move this to a config object
+        this.batch_size = 500; //number of actions to get in each loop max:1000 TODO: move this to a config object
         this.state = state;
         this.resume = true;
     }
@@ -75,7 +75,7 @@ class ActionScraper{
         }
         
         //restart loop
-        await this._sleep(1000);
+        await this._sleep(500);
         this.loop();
     }
 
