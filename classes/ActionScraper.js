@@ -1,10 +1,14 @@
+// const { Api, JsonRpc, RpcError, JsSignatureProvider } = require('eosjs');
+// const fetch = require('node-fetch');                            // node only; not needed in browsers
+// const { TextDecoder, TextEncoder } = require('text-encoding');  // node, IE11 and IE Edge Browsers
+
 const eosjs = require('eosjs-api');
 const colors = require('colors/safe');
 
 class ActionScraper{
 
     constructor(contractname='', eosconfig, actionhandler, state ){
-
+        //todo better validate parameters. check for required function implementations update() and getState() in state obj
         if(!contractname){
             console.log('You need to specify an acountname to scrape actions from');
             return false;
@@ -18,7 +22,7 @@ class ActionScraper{
         this._initEos(eosconfig);
         this.contract = contractname;
         this.actionhandler = actionhandler;
-        this.batch_size = 10; //number of actions to get in each loop max:1000
+        this.batch_size = 1; //number of actions to get in each loop max:1000 TODO: move this to a config object
         this.state = state;
         this.resume = true;
     }
@@ -77,7 +81,7 @@ class ActionScraper{
 
     async getActions(){
         
-        return this.eos.getActions({account_name: this.contract ,pos:  this.state.getState(this.contract), offset: this.batch_size-1}).then( a =>{
+        return this.eos.getActions({account_name: this.contract, pos: this.state.getState(this.contract), offset: this.batch_size-1}).then( a =>{
             if(!a.actions.length){
               console.log(colors.yellow('no new actions found after seq '));
               return [];
@@ -113,13 +117,14 @@ class ActionScraper{
     _initEos(eosconfig){
         
         this.eos = eosjs(eosconfig);
+        // this.eos = new JsonRpc(eosconfig.httpEndpoint, { fetch });
         console.log(colors.green('Connected to EOS') );
     }
 
 	_sleep(t, msg='') {
 
-		console.log('sleep for', t/1000, 'seconds.', msg);
-    	return new Promise(resolve => setTimeout(resolve, t));
+        console.log('sleep for', t/1000, 'seconds.', msg);
+        return new Promise(resolve => setTimeout(resolve, t));
     }
 
     async _asyncForEach(array, callback) {
