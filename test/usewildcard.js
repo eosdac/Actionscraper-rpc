@@ -14,6 +14,8 @@ let my_actionHandler = new ActionHandler();
 //using a wildcard will ignore other registered handler. TODO: make it possible to register multiple handlers for the same action
 my_actionHandler.register({
 
+    account_name : 'dacelections',
+
     '*' : async (actiondata, state, eosapi) => {
 
         if(actiondata.irreversible){
@@ -23,6 +25,6 @@ my_actionHandler.register({
 
 })
 
-let deamon = new ActionScraper('dacelections', eosconfig, my_actionHandler, new File_StateManager() );
+let deamon = new ActionScraper( eosconfig, my_actionHandler, new File_StateManager() );
 //start the action scaper
 deamon.loop();

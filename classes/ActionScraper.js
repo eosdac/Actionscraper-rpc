@@ -7,20 +7,17 @@ const colors = require('colors/safe');
 
 class ActionScraper{
 
-    constructor(contractname='', eosconfig, actionhandler, state ){
+    constructor(eosconfig, actionhandler, state ){
         //todo better validate parameters. check for required function implementations update() and getState() in state obj
-        if(!contractname){
-            console.log('You need to specify an acountname to scrape actions from');
+        if(!actionhandler.handlers.account_name){
+            console.log('You need to specify an acount_name in your action handler');
             return false;
         }
 
-        if(!actionhandler){
-            console.log(`No actionhandler for ${contractname}`);
-            return false;
-        }
+
 
         this._initEos(eosconfig);
-        this.contract = contractname;
+        this.contract = actionhandler.handlers.account_name;
         this.actionhandler = actionhandler;
         this.batch_size = 500; //number of actions to get in each loop max:1000 TODO: move this to a config object
         this.state = state;

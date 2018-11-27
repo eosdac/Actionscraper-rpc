@@ -14,6 +14,8 @@ let my_actionHandler = new ActionHandler();
 //you might want to add your handlers in a separate file for cleaner code
 my_actionHandler.register({
 
+    account_name : 'eosio.token',
+
     transfer : async (actiondata, state, eosapi) => {
 
         if(actiondata.irreversible){
@@ -36,6 +38,6 @@ my_actionHandler.register({
     }
 })
 
-let deamon = new ActionScraper('eosio.token', eosconfig, my_actionHandler, new File_StateManager() );
+let deamon = new ActionScraper( eosconfig, my_actionHandler, new File_StateManager() );
 //start the action scaper
 deamon.loop();

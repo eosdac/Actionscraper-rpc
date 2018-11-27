@@ -10,6 +10,8 @@ let my_actionHandler = new ActionHandler();
 
 my_actionHandler.register({
 
+    account_name : 'dacelections',
+
     propose : async (actiondata, state, eosapi) => {
 
         // let decoded = await eosapi.abiBinToJson('eosio.msig', 'propose', actiondata.act.data.trx.actions[0].data)
@@ -34,6 +36,6 @@ let memstate = {
     getState: function(){ return this.pos; }
 }
 
-let deamon = new ActionScraper('eosio.msig', eosconfig, my_actionHandler, memstate);
+let deamon = new ActionScraper(eosconfig, my_actionHandler, memstate);
 //start the action scaper
 deamon.loop();

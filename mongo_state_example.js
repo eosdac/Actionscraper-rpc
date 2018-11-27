@@ -15,6 +15,8 @@ This is useful to share the same db connection for instance.
 */
 my_actionHandler.register({
 
+    account_name : 'dacelections',
+
     votecust : async (actiondata, state, eosapi) => {
 
         await state.db.collection('votes').updateOne({ _id: actiondata._id }, {$set:actiondata}, { upsert: true } );
@@ -40,6 +42,6 @@ const eosconfig = {
 let s = new Mongo_StateManager();
 s.connect(); //todo move this initialization to the scraper
 
-let deamon = new ActionScraper('dacelections', eosconfig, my_actionHandler, s);
+let deamon = new ActionScraper( eosconfig, my_actionHandler, s);
 //start the action scaper
 deamon.loop();
