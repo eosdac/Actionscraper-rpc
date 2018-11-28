@@ -14,17 +14,21 @@ class ActionScraper{
             return false;
         }
 
-
-
         this._initEos(eosconfig);
         this.contract = actionhandler.handlers.account_name;
         this.actionhandler = actionhandler;
-        this.batch_size = 500; //number of actions to get in each loop max:1000 TODO: move this to a config object
+         
+        this.opt = {
+            batch_size : 500, //number of actions to get in each loop max:1000
+            stop_when_reversible : false,
+            stop_at_last_action : false,
+        };
         this.state = state;
         this.resume = true;
     }
 
     async loop(){
+        if(this.stop_loop_flag === true) {return false};
 
         if(!this.first_loop_done){
             await this._validateActionHandler();
@@ -57,6 +61,10 @@ class ActionScraper{
             if(is_irreversible){
                 temp_state++;
             }
+ 
+            if(!is_irreversible && this.opt.stop_when_reversible){
+                this.stop_loop_flag = true;
+            }
             // console.log(action)
 
             // TODO add custom keys to action data to make it easier to process
@@ -78,9 +86,14 @@ class ActionScraper{
 
     async getActions(){
         
-        return this.eos.getActions({account_name: this.contract, pos: this.state.getState(this.contract), offset: this.batch_size-1}).then( a =>{
+        return this.eos.getActions({account_name: this.contract, pos: this.state.getState(this.contract), offset: this.opt.batch_size-1}).then( a =>{
             if(!a.actions.length){
               console.log(colors.yellow('no new actions found after seq '));
+
+              if(this.opt.stop_at_last_action){
+                  this.stop_loop_flag = true;
+              }
+
               return [];
             }
             return a.actions;
@@ -97,7 +110,7 @@ class ActionScraper{
                 console.log(colors.yellow(`The account ${this.contract} has no ABI set.`));
                 return false;
             }
-            let actionhandlers = Object.keys(this.actionhandler.handlers);
+            let actionhandlers = Object.keys(this.actionhandler.handlers).filter(a => a != 'account_name');
 
             console.log(colors.magenta.bold.underline(`ActionScraper "${this.contract}"\n`) );
             console.log(colors.yellow.bold(`Watching for:`) );
