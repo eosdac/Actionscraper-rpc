@@ -21,7 +21,7 @@ class ActionHandler{
         else if(handler in this.handlers){
 
             console.log(colors.green(`Found registered action: "${handler}"`) );
-            return this.handlers[handler](actiondata, state, eosapi); //return the result of the handler to the scraper in case you want to use it
+            return this.handlers[handler](actiondata, state, eosapi);
             
         }
         else{

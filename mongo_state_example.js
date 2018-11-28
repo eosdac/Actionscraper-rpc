@@ -4,7 +4,7 @@ const {Mongo_StateManager} = require('./classes/Mongo_StateManager');
 
 const eosconfig = {
     chainId: "e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473", //jungle2
-    httpEndpoint: "http://junglehistory.cryptolions.io", //node with mongodb plugin
+    httpEndpoint: "http://junglehistory.cryptolions.io", //node with mongodb plugin mainnet: http://history.cryptolions.io
 };
 
 const scraperconfig = {
@@ -12,6 +12,7 @@ const scraperconfig = {
     stop_when_reversible : false,
     stop_at_last_action : false,
 };
+
 //create a new action handler instance
 let my_actionHandler = new ActionHandler();
 
@@ -27,15 +28,16 @@ my_actionHandler.register({
 
     account_name : 'dacelections',
 
-    votecust : async (actiondata, state, eosapi) => {
+    // votecust : async (actiondata, state, eosapi) => {
 
-        await state.db.collection('votes').updateOne({ _id: actiondata._id }, {$set:actiondata}, { upsert: true } );
-    },
+    //     await state.db.collection('votes').updateOne({ _id: actiondata._id }, {$set:actiondata}, { upsert: true } );
+    // },
 
-    stprosfileuns : async (actiondata, state) => {
-        console.log('stprofileuns', actiondata)
-        // await waitFor(2000);
-        // return 'ddd'
+    stprofileuns : async (actiondata, state) => {
+        if(actiondata.act.account == 'dacelections'){
+            await state.db.collection('profiles').updateOne({ _id: actiondata._id }, {$set:actiondata}, { upsert: true } );
+        }
+        
     }
 })
 
