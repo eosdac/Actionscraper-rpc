@@ -2,6 +2,16 @@ const {ActionScraper} = require('./classes/ActionScraper');
 const {ActionHandler} = require('./classes/ActionHandler');
 const {Mongo_StateManager} = require('./classes/Mongo_StateManager');
 
+const eosconfig = {
+    chainId: "e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473", //jungle2
+    httpEndpoint: "http://junglehistory.cryptolions.io", //node with mongodb plugin
+};
+
+const scraperconfig = {
+    batch_size : 1000, //number of actions to get in each loop max:1000
+    stop_when_reversible : false,
+    stop_at_last_action : false,
+};
 //create a new action handler instance
 let my_actionHandler = new ActionHandler();
 
@@ -34,14 +44,10 @@ Create a new instance of the actionscraper. Pass the account to watch,
 an actionhandler and optionally a statemanager in to the constructor.
 The statemanager is also accessible in the action handlers (see state parameter).
 */
-const eosconfig = {
-    chainId: "e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473", //jungle2
-    httpEndpoint: "http://junglehistory.cryptolions.io", //node with mongodb plugin
-}
 
 let s = new Mongo_StateManager();
-s.connect(); //todo move this initialization to the scraper
+s.connect(); //todo move this initialization to manager itself
 
-let deamon = new ActionScraper( eosconfig, my_actionHandler, s);
+let deamon = new ActionScraper( eosconfig, my_actionHandler, s, scraperconfig);
 //start the action scaper
 deamon.loop();

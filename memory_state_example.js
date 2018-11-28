@@ -1,10 +1,17 @@
 const {ActionScraper} = require('./classes/ActionScraper');
 const {ActionHandler} = require('./classes/ActionHandler');
 
+
 const eosconfig = {
     chainId: "e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473", //jungle2
     httpEndpoint: "http://junglehistory.cryptolions.io", //node with mongodb plugin
-}
+};
+
+const scraperconfig = {
+    batch_size : 5, //number of actions to get in each loop max:1000
+    stop_when_reversible : false,
+    stop_at_last_action : false,
+};
 
 let my_actionHandler = new ActionHandler();
 
@@ -36,6 +43,6 @@ let memstate = {
     getState: function(){ return this.pos; }
 }
 
-let deamon = new ActionScraper(eosconfig, my_actionHandler, memstate);
+let deamon = new ActionScraper(eosconfig, my_actionHandler, memstate, scraperconfig);
 //start the action scaper
 deamon.loop();

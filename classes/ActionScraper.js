@@ -7,7 +7,7 @@ const colors = require('colors/safe');
 
 class ActionScraper{
 
-    constructor(eosconfig, actionhandler, state ){
+    constructor(eosconfig, actionhandler, state, options ){
         //todo better validate parameters. check for required function implementations update() and getState() in state obj
         if(!actionhandler.handlers.account_name){
             console.log('You need to specify an acount_name in your action handler');
@@ -17,13 +17,18 @@ class ActionScraper{
         this._initEos(eosconfig);
         this.contract = actionhandler.handlers.account_name;
         this.actionhandler = actionhandler;
-         
+        this.state = state;
+
         this.opt = {
             batch_size : 500, //number of actions to get in each loop max:1000
             stop_when_reversible : false,
             stop_at_last_action : false,
         };
-        this.state = state;
+
+        if(typeof options === 'object' && !Array.isArray(options) ){
+            this.opt = Object.assign(this.opt, options);
+        }
+
         this.resume = true;
     }
 

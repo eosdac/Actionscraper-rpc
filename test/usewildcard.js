@@ -8,6 +8,11 @@ const eosconfig = {
     httpEndpoint: "http://junglehistory.cryptolions.io", //node with mongodb plugin
 }
 
+const scraperconfig = {
+    batch_size : 5,
+    stop_at_last_action: true
+}
+
 let my_actionHandler = new ActionHandler();
 
 
@@ -25,6 +30,6 @@ my_actionHandler.register({
 
 })
 
-let deamon = new ActionScraper( eosconfig, my_actionHandler, new File_StateManager() );
+let deamon = new ActionScraper( eosconfig, my_actionHandler, new File_StateManager(), scraperconfig);
 //start the action scaper
 deamon.loop();
