@@ -15,7 +15,7 @@ class ActionHandler{
         // console.log(this.opt) actionscraper options
         if('*' in this.handlers){
 
-            console.log(colors.green(`Found registered action: "${handler}*"`) );
+            console.log(colors.green(`Found registered action: "${handler}${colors.yellow.bold('*')}"`) );
             return this.handlers['*'](actiondata, state, eosapi);
         }
         else if(handler in this.handlers){

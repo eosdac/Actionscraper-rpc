@@ -8,11 +8,10 @@ const colors = require('colors/safe');
 class ActionScraper{
 
     constructor(eosconfig, actionhandler, state, options ){
-        //todo better validate parameters. check for required function implementations update() and getState() in state obj
-        if(!actionhandler.handlers.account_name){
-            console.log('You need to specify an acount_name in your action handler');
-            return false;
-        }
+
+        if(!actionhandler.handlers.account_name) {console.log('You need to specify an acount_name in your action handler.'); return false;}
+        if(typeof state.update !=='function') {console.log('Please implement an update() function in your statemanager.'); return false};
+        if(typeof state.getState !=='function') {console.log('Please implement a getState() function in your statemanager.'); return false};
 
         this._initEos(eosconfig);
         this.contract = actionhandler.handlers.account_name;
