@@ -25,9 +25,12 @@ class ActionScraper{
             stop_at_last_action : false,
         };
 
+        //merge option object
         if(typeof options === 'object' && !Array.isArray(options) ){
             this.opt = Object.assign(this.opt, options);
         }
+        //make options available in ActionHandler
+        this.actionhandler.opt = this.opt;
 
         this.resume = true;
     }
@@ -101,6 +104,7 @@ class ActionScraper{
 
               return [];
             }
+
             return a.actions;
         })
         .catch(err => console.log(err) );

@@ -12,7 +12,7 @@ class ActionHandler{
     }
 
     async exec(handler, actiondata, state, eosapi){
-
+        // console.log(this.opt) actionscraper options
         if('*' in this.handlers){
 
             console.log(colors.green(`Found registered action: "${handler}*"`) );
@@ -25,7 +25,7 @@ class ActionHandler{
             
         }
         else{
-            
+
             console.log(`The action "${handler}" is not registered in the action handler.`);
             return false; // not processed feedback to scraper
         }
