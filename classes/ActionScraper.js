@@ -128,6 +128,7 @@ class ActionScraper{
         }
         catch(err){
             console.log(colors.red(`Error getting ABI from ${this.contract}`));
+            this.stop_loop_flag = true;
             return false;
         }
     }
