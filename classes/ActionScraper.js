@@ -91,8 +91,11 @@ class ActionScraper{
                 case 'all':
                     process_flag = true;
                     break;
+                default:
+                    console.log('You passed a wrong value in to the "handle_actions_from_origin" config. Please chose between internal, external or all');
+                    this.stop_loop_flag = true;
             }
-            
+
             if(process_flag){
                 let t = await this.actionhandler.exec(action.act.name, action, this.state, this.eos);
             }
