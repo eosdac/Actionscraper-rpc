@@ -20,8 +20,10 @@ class ActionScraper{
 
         this.opt = {
             batch_size : 500, //number of actions to get in each loop max:1000
+            handle_actions_from_origin: 'internal', //internal, external, all
             stop_when_reversible : false,
             stop_at_last_action : false,
+
         };
 
         //merge option object
@@ -78,7 +80,23 @@ class ActionScraper{
             action.irreversible = is_irreversible;
 
             //call the action handler function
-            let t = await this.actionhandler.exec(action.act.name, action, this.state, this.eos);
+            let process_flag = false;
+            switch(this.opt.handle_actions_from_origin) {
+                case 'internal':
+                    if(action.act.account == this.contract) process_flag = true;
+                    break;
+                case 'external':
+                    if(action.act.account != this.contract) process_flag = true;
+                    break;
+                case 'all':
+                    process_flag = true;
+                    break;
+            }
+            
+            if(process_flag){
+                let t = await this.actionhandler.exec(action.act.name, action, this.state, this.eos);
+            }
+            
         });
 
         //update state only when irreversible actions have been seen

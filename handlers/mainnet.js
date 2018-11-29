@@ -15,7 +15,7 @@ const daccustodian = {
             data.blocknum = actiondata.block_num;
             data.blocktime = actiondata.block_time;
             data.globseq = actiondata.receipt.global_sequence;
-            await state.db.collection('profiles').updateOne({ _id: actiondata.act.data.cand }, {$set:data}, { upsert: true } );
+            await state.db.collection('profiles3').updateOne({ _id: actiondata.act.data.cand }, {$set:data}, { upsert: true } );
         }
         
     }

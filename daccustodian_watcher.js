@@ -9,7 +9,7 @@ const eosconfig = {
 };
 
 const scraperconfig = {
-    batch_size : 1000, 
+    batch_size : 5, 
     stop_when_reversible : false,
     stop_at_last_action : false,
 };
