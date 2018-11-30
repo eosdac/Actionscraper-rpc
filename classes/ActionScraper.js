@@ -21,10 +21,11 @@ class ActionScraper{
         this.opt = {
             batch_size : 500, //number of actions to get in each loop max:1000
             handle_actions_from_origin: 'internal', //internal, external, all
+            receiver: this.contract,
             block_interval: false, //{start: 0, stop: -1}
             stop_when_reversible : false,
             stop_at_last_action : false,
-            loop_delay : 500
+            loop_delay : 500 //delay between loops/batches
 
         };
 
@@ -39,7 +40,7 @@ class ActionScraper{
     }
 
     async loop(){
-        if(this.stop_loop_flag === true) {return false};
+        if(this.stop_loop_flag === true) {console.log('Scraper received stop event.'); return false};
 
         if(!this.first_loop_done){
             await this._validateActionHandler();
@@ -96,6 +97,10 @@ class ActionScraper{
                 default:
                     console.log('You passed a wrong value in to the "handle_actions_from_origin" config. Please chose between internal, external or all');
                     this.stop_loop_flag = true;
+            }
+
+            if(this.opt.receiver != action.receipt.receiver && process_flag){
+                process_flag = false;
             }
 
             if(typeof this.opt.block_interval =='object' && process_flag){

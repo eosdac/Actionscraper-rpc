@@ -11,8 +11,8 @@ const eosconfig = {
 const scraperconfig = {
     batch_size : 10,
     stop_at_last_action: true,
-    handle_actions_from_origin: 'all', //internal, external or all (default: internal)
-    block_interval: {start: 22826, stop: 1036187} // {start: 500, stop: -1} execute handler on actions starting from block 500 (included) and don't stop
+    handle_actions_from_origin: 'internal', //internal, external or all (default: internal)
+    block_interval: false// {start: 500, stop: -1} execute handler on actions starting from block 500 (included) and don't stop
 }
 
 let my_actionHandler = new ActionHandler();
@@ -21,12 +21,12 @@ let my_actionHandler = new ActionHandler();
 //using a wildcard will ignore other registered handler. TODO: make it possible to register multiple handlers for the same action
 my_actionHandler.register({
 
-    account_name : 'dacelections',
+    account_name : 'kasdactokens',
 
-    '*' : async (actiondata, state, eosapi) => {
+    'transfer' : async (actiondata, state, eosapi) => {
 
         if(actiondata.irreversible){
-            state.write('all_actions6.txt', actiondata.block_num+' ' +JSON.stringify(actiondata.act) );
+            state.write('all_actions6.txt', actiondata.receipt.receiver+' ' +JSON.stringify(actiondata.act) );
         }
     },
 
