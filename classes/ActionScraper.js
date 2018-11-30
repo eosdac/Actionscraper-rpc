@@ -24,6 +24,7 @@ class ActionScraper{
             block_interval: false, //{start: 0, stop: -1}
             stop_when_reversible : false,
             stop_at_last_action : false,
+            loop_delay : 500
 
         };
 
@@ -107,7 +108,6 @@ class ActionScraper{
                 
             }
 
-
             if(process_flag){
                 let t = await this.actionhandler.exec(action.act.name, action, this.state, this.eos);
             }
@@ -120,7 +120,7 @@ class ActionScraper{
         }
         
         //restart loop
-        await this._sleep(500);
+        await this._sleep(this.opt.loop_delay);
         this.loop();
     }
 
@@ -173,7 +173,7 @@ class ActionScraper{
         console.log(colors.green('Connected to EOS') );
     }
 
-	_sleep(t, msg='') {
+    _sleep(t, msg='') {
 
         console.log('sleep for', t/1000, 'seconds.', msg);
         return new Promise(resolve => setTimeout(resolve, t));
