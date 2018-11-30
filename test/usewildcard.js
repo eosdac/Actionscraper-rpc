@@ -9,9 +9,10 @@ const eosconfig = {
 }
 
 const scraperconfig = {
-    batch_size : 100,
+    batch_size : 10,
     stop_at_last_action: true,
-    handle_actions_from_origin: 'all' //internal, external or all (default: internal)
+    handle_actions_from_origin: 'all', //internal, external or all (default: internal)
+    block_interval: {start: 22826, stop: 1036187} // {start: 500, stop: -1} execute handler on actions starting from block 500 (included) and don't stop
 }
 
 let my_actionHandler = new ActionHandler();
@@ -25,7 +26,7 @@ my_actionHandler.register({
     '*' : async (actiondata, state, eosapi) => {
 
         if(actiondata.irreversible){
-            state.write('all_actions2.txt', actiondata.trx_id+' ' +JSON.stringify(actiondata.act) );
+            state.write('all_actions6.txt', actiondata.block_num+' ' +JSON.stringify(actiondata.act) );
         }
     },
 

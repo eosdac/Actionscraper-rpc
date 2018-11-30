@@ -21,6 +21,7 @@ class ActionScraper{
         this.opt = {
             batch_size : 500, //number of actions to get in each loop max:1000
             handle_actions_from_origin: 'internal', //internal, external, all
+            block_interval: false, //{start: 0, stop: -1}
             stop_when_reversible : false,
             stop_at_last_action : false,
 
@@ -63,7 +64,7 @@ class ActionScraper{
 
         //handle actions
         let temp_state = 0;
-        await this._asyncForEach(actions, async (action) =>{
+        await this._asyncForEach(actions, async (action, index, actionarray) =>{
 
             let is_irreversible = action.block_num <= last_irr_block_num;
 
@@ -95,6 +96,17 @@ class ActionScraper{
                     console.log('You passed a wrong value in to the "handle_actions_from_origin" config. Please chose between internal, external or all');
                     this.stop_loop_flag = true;
             }
+
+            if(typeof this.opt.block_interval =='object' && process_flag){
+                process_flag = false;
+                if(action.block_num >= this.opt.block_interval.start && (action.block_num <= this.opt.block_interval.stop || this.opt.block_interval.stop == -1) ){
+                    process_flag = true;
+                }
+                //auto stop
+                if(action.block_num > this.opt.block_interval.stop && this.opt.block_interval.stop > 0 ) this.stop_loop_flag = true;
+                
+            }
+
 
             if(process_flag){
                 let t = await this.actionhandler.exec(action.act.name, action, this.state, this.eos);
