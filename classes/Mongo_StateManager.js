@@ -6,11 +6,11 @@ const {Base_StateManager} = require('./abstract/Base_StateManager');
 //and can be used to insert action data in to collections from within the action handlers
 class Mongo_StateManager extends Base_StateManager{
 
-    constructor(){
+    constructor(mongoUrl='mongodb://localhost:27017/', dbName='eosdac'){
         super();
         this.pos = [];//object to hold current state {}
-        this.mongoUrl = 'mongodb://localhost:27017/';
-        this.dbName = 'eosdac';
+        this.mongoUrl = mongoUrl;
+        this.dbName = dbName;
 
     }
 

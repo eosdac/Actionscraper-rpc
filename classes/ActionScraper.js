@@ -25,7 +25,7 @@ class ActionScraper{
             block_interval: false, //{start: 0, stop: -1}
             stop_when_reversible : false,
             stop_at_last_action : false,
-            loop_delay : 500 //delay between loops/batches
+            loop_delay : 1000 //delay between loops/batches
 
         };
 
@@ -99,7 +99,7 @@ class ActionScraper{
                     this.stop_loop_flag = true;
             }
 
-            if(this.opt.receiver != action.receipt.receiver && process_flag){
+            if(this.opt.receiver && this.opt.receiver != action.receipt.receiver && process_flag){
                 process_flag = false;
             }
 
