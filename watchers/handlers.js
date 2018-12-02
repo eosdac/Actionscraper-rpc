@@ -1,3 +1,5 @@
+const {config} = require('./config');
+
 function getDefaultData(actiondata){
     let data = {};
     data.irreversible = actiondata.irreversible;
@@ -9,9 +11,9 @@ function getDefaultData(actiondata){
     return data;
 }
 
-const daccustodian = {
+const custodiancontract = {
 
-    account_name : 'dacelections',
+    account_name : config.contracts.custodian,
 
     stprofileuns : async (actiondata, state) => {
        
@@ -22,6 +24,16 @@ const daccustodian = {
     }
 }
 
+const tokencontract = {
+
+    account_name : config.contracts.token,
+
+    issue : async (actiondata, state) => {
+       
+    }
+}
+
 module.exports = {
-    daccustodian
+    custodiancontract,
+    tokencontract
 };

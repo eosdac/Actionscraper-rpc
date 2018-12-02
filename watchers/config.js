@@ -9,8 +9,11 @@ const config = {
         mongoUrl: 'mongodb://localhost:27017/',
         dbName: 'eosdac'
     },
-    
-    handler: './handlers/jungle'
+
+    contracts:{
+        custodian: 'dacelections',
+        token: 'kasdactokens'
+    }
 
 }
 
