@@ -15,7 +15,7 @@ function getDefaultData(actiondata){
 /////////////////////////////////////
 //handler for custodian contract
 /////////////////////////////////////
-const custodiancontract = {
+const custodianHandler = {
 
     account_name : config.contracts.custodian,
 
@@ -31,16 +31,47 @@ const custodiancontract = {
 /////////////////////////////////////
 //handler for token contract
 /////////////////////////////////////
-const tokencontract = {
+const tokenHandler = {
 
     account_name : config.contracts.token,
 
     issue : async (actiondata, state) => {
        
+    },
+
+    transfer : async (actiondata, state) => {
+        if(actiondata.irreversible){
+            //do something with irreversible transfer
+        }
+        else{
+            //do something with reversible transfer
+        }
+    }
+}
+
+/////////////////////////////////////
+//handler for msig contract
+/////////////////////////////////////
+const msigHandler = {
+
+    account_name : config.contracts.msig,
+
+    issue : async (actiondata, state) => {
+       
+    },
+
+    transfer : async (actiondata, state) => {
+        if(actiondata.irreversible){
+            //do something with irreversible transfer
+        }
+        else{
+            //do something with reversible transfer
+        }
     }
 }
 
 module.exports = {
-    custodiancontract,
-    tokencontract
+    custodianHandler,
+    tokenHandler,
+    msigHandler
 };
