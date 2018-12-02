@@ -56,18 +56,25 @@ const msigHandler = {
 
     account_name : config.contracts.msig,
 
-    issue : async (actiondata, state) => {
+    proposed : async (actiondata, state) => {
        
     },
 
-    transfer : async (actiondata, state) => {
-        if(actiondata.irreversible){
-            //do something with irreversible transfer
-        }
-        else{
-            //do something with reversible transfer
-        }
-    }
+    approved : async (actiondata, state) => {
+       
+    },
+
+    unapproved : async (actiondata, state) => {
+       
+    },
+
+    executed : async (actiondata, state) => {
+       
+    },
+
+    cancelled : async (actiondata, state) => {
+       
+    },
 }
 
 module.exports = {
