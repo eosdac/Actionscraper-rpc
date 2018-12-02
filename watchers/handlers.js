@@ -1,5 +1,6 @@
 const {config} = require('./config');
 
+//helper function to extract required default data from action.
 function getDefaultData(actiondata){
     let data = {};
     data.irreversible = actiondata.irreversible;
@@ -11,6 +12,9 @@ function getDefaultData(actiondata){
     return data;
 }
 
+/////////////////////////////////////
+//handler for custodian contract
+/////////////////////////////////////
 const custodiancontract = {
 
     account_name : config.contracts.custodian,
@@ -24,6 +28,9 @@ const custodiancontract = {
     }
 }
 
+/////////////////////////////////////
+//handler for token contract
+/////////////////////////////////////
 const tokencontract = {
 
     account_name : config.contracts.token,
