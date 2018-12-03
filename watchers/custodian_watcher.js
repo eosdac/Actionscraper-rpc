@@ -9,12 +9,9 @@ const scraperConfig = {
 };
 
 
-let my_actionHandler = new ActionHandler();
+let actionHandler = new ActionHandler(custodianHandler);
+let state = new Mongo_StateManager(config.db.mongoUrl, config.db.dbName);
+state.connect();
 
-my_actionHandler.register(custodianHandler);
-
-let s = new Mongo_StateManager(config.db.mongoUrl, config.db.dbName);
-s.connect();
-
-let deamon = new ActionScraper( config.chain, my_actionHandler, s, scraperConfig);
+let deamon = new ActionScraper( config.chain, actionHandler, state, scraperConfig);
 deamon.loop();

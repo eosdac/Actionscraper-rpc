@@ -2,8 +2,8 @@ const colors = require('colors/safe');
 
 class ActionHandler{
 
-    constructor(){
-        this.handlers = {};
+    constructor(actionhandler={}){
+        this.handlers = actionhandler;
     }
 
     register(actionHandler){
