@@ -25,6 +25,7 @@ const custodianHandler = {
             let data = getDefaultData(actiondata);
             data.profile = actiondata.act.data.profile;
             await state.db.collection('profiles').updateOne({ _id: id }, {$set:data}, { upsert: true } );
+            
     }
 }
 
@@ -74,7 +75,7 @@ const msigHandler = {
 
     cancelled : async (actiondata, state) => {
        
-    },
+    }
 }
 
 module.exports = {

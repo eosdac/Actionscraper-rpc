@@ -16,12 +16,16 @@ class ActionHandler{
         if('*' in this.handlers){
 
             console.log(colors.green(`Found registered action: "${handler}${colors.yellow.bold('*')}"`) );
-            return this.handlers['*'](actiondata, state, eosapi);
+            try{
+                return this.handlers['*'](actiondata, state, eosapi);
+            }catch(e){console.log('error', e)}
         }
         else if(handler in this.handlers){
 
             console.log(colors.green(`Found registered action: "${handler}"`) );
-            return this.handlers[handler](actiondata, state, eosapi);
+            try{
+                return this.handlers[handler](actiondata, state, eosapi);
+            }catch(e){console.log('error', e)}
             
         }
         else{
