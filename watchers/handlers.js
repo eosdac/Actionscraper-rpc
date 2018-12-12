@@ -4,7 +4,7 @@ const util = require('util');
 //helper function to extract required default data from action.
 function getDefaultData(actiondata){
     let data = {};
-    data.irreversible = actiondata.irreversible;
+    data.irrevirsible = actiondata.irreversible;
     data.block_num = actiondata.block_num;
     data.block_time = actiondata.block_time;
     data.action_name = actiondata.act.name; // = stprofileuns
@@ -75,6 +75,7 @@ const tokenHandler = {
             data.recv_sequence = actiondata.receipt.recv_sequence;
             data.account = actiondata.act.account;
             
+            
 
             let c = await state.db.collection('transfers3').updateOne(
                 {recv_sequence: data.recv_sequence },
@@ -114,6 +115,7 @@ const msigHandler = {
         data._id = actiondata.trx_id;
         data.proposer = actiondata.act.data.proposer;
         data.proposal_name = actiondata.act.data.proposal_name;
+        
 
         let proms = [
             (await eos.getTableRows({
