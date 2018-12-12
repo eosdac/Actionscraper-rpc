@@ -8,14 +8,16 @@ const eosconfig = {
 };
 
 const scraperconfig = {
-    batch_size : 1000, //number of actions to get in each loop max:1000
-    stop_when_reversible : false,
-    stop_at_last_action : false,
+    batch_size : 1000,
+    stop_at_last_action: true,
+    handle_actions_from_origin: 'all', //internal, external or all (default: internal)
+    receiver: false,
+    block_interval: false// {start: 500, stop: -1} execute handler on actions starting from block 500 (included) and don't stop
 };
 
 //create a new action handler instance
 let my_actionHandler = new ActionHandler();
-
+let i = 0;
 /*
 register actions to watch for and specify a handler function to process the action data. 
 the handler function can be async code.
@@ -33,10 +35,11 @@ my_actionHandler.register({
     //     await state.db.collection('votes').updateOne({ _id: actiondata._id }, {$set:actiondata}, { upsert: true } );
     // },
 
-    stprofileuns : async (actiondata, state) => {
-        if(actiondata.act.account == 'dacelections'){
-            await state.db.collection('profiles').updateOne({ _id: actiondata._id }, {$set:actiondata}, { upsert: true } );
-        }
+    '*' : async (actiondata, state) => {
+        
+            let a = await state.db.collection('test').updateOne({ _id: actiondata._id }, {$set:actiondata}, { upsert: true } );
+            return true;
+        
         
     }
 })

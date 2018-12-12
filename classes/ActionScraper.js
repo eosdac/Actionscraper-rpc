@@ -2,8 +2,9 @@
 // const fetch = require('node-fetch');                            // node only; not needed in browsers
 // const { TextDecoder, TextEncoder } = require('text-encoding');  // node, IE11 and IE Edge Browsers
 
-const eosjs = require('eosjs-api');
+const eosjs = require('eosjs');
 const colors = require('colors/safe');
+const axios = require('axios');
 
 class ActionScraper{
 
@@ -17,6 +18,7 @@ class ActionScraper{
         this.contract = actionhandler.handlers.account_name;
         this.actionhandler = actionhandler;
         this.state = state;
+        this.eosconfig = eosconfig;
 
         this.opt = {
             batch_size : 500, //number of actions to get in each loop max:1000
@@ -57,17 +59,21 @@ class ActionScraper{
         }
         
         //get actions
-        let actions = await this.getActions();
+        let actions = await this.getActions2();
+        
         let last_irr_block_num = (await this.eos.getInfo({})).last_irreversible_block_num;
-
+        console.log('gt last irreversible block', last_irr_block_num);
         //some feedback
         console.log(colors.magenta('state.pos', this.state.getState(this.contract) ) );
         console.log('actions.length', actions.length);
 
         //handle actions
         let temp_state = 0;
-        await this._asyncForEach(actions, async (action, index, actionarray) =>{
 
+        let block_info = null;
+
+        await this._asyncForEach(actions, async (action, index, actionarray) =>{
+            
             let is_irreversible = action.block_num <= last_irr_block_num;
 
             if(is_irreversible){
@@ -77,44 +83,19 @@ class ActionScraper{
             if(!is_irreversible && this.opt.stop_when_reversible){
                 this.stop_loop_flag = true;
             }
+            
             // console.log(action)
 
             // TODO add custom keys to action data to make it easier to process
             action.irreversible = is_irreversible;
 
+            let process_flag =  this.setprocessFlag(action);
+       
             //call the action handler function
-            let process_flag = false;
-            switch(this.opt.handle_actions_from_origin) {
-                case 'internal':
-                    if(action.act.account == this.contract) process_flag = true;
-                    break;
-                case 'external':
-                    if(action.act.account != this.contract) process_flag = true;
-                    break;
-                case 'all':
-                    process_flag = true;
-                    break;
-                default:
-                    console.log('You passed a wrong value in to the "handle_actions_from_origin" config. Please chose between internal, external or all');
-                    this.stop_loop_flag = true;
-            }
-
-            if(this.opt.receiver && this.opt.receiver != action.receipt.receiver && process_flag){
-                process_flag = false;
-            }
-
-            if(typeof this.opt.block_interval =='object' && process_flag){
-                process_flag = false;
-                if(action.block_num >= this.opt.block_interval.start && (action.block_num <= this.opt.block_interval.stop || this.opt.block_interval.stop == -1) ){
-                    process_flag = true;
-                }
-                //auto stop
-                if(action.block_num > this.opt.block_interval.stop && this.opt.block_interval.stop > 0 ) this.stop_loop_flag = true;
-                
-            }
-
+            
             if(process_flag){
-                let t = await this.actionhandler.exec(action.act.name, action, this.state, this.eos);
+                let t =  await this.actionhandler.exec(action.act.name, action, this.state, this.eos);
+                console.log(t);
             }
             
         });
@@ -129,9 +110,43 @@ class ActionScraper{
         this.loop();
     }
 
+    setprocessFlag(action){
+
+        let process_flag = false;
+        switch(this.opt.handle_actions_from_origin) {
+            case 'internal':
+                if(action.act.account == this.contract) process_flag = true;
+                break;
+            case 'external':
+                if(action.act.account != this.contract) process_flag = true;
+                break;
+            case 'all':
+                process_flag = true;
+                break;
+            default:
+                console.log('You passed a wrong value in to the "handle_actions_from_origin" config. Please chose between internal, external or all');
+                this.stop_loop_flag = true;
+        }
+
+        if(this.opt.receiver && this.opt.receiver != action.receipt.receiver && process_flag){
+            process_flag = false;
+        }
+
+        if(typeof this.opt.block_interval =='object' && process_flag){
+            process_flag = false;
+            if(action.block_num >= this.opt.block_interval.start && (action.block_num <= this.opt.block_interval.stop || this.opt.block_interval.stop == -1) ){
+                process_flag = true;
+            }
+            //auto stop
+            if(action.block_num > this.opt.block_interval.stop && this.opt.block_interval.stop > 0 ) this.stop_loop_flag = true;
+            
+        }
+        return process_flag;
+    }
+
     async getActions(){
-        
-        return this.eos.getActions({account_name: this.contract, pos: this.state.getState(this.contract)+1, offset: this.opt.batch_size-1}).then( a =>{
+        console.log('getting actions')
+        let actions = await this.eos.getActions({account_name: this.contract, pos: this.state.getState(this.contract)+1, offset: this.opt.batch_size-1}).then( a =>{
             if(!a.actions.length){
               console.log(colors.yellow('no new actions found after seq '));
 
@@ -145,6 +160,19 @@ class ActionScraper{
             return a.actions;
         })
         .catch(err => console.log(err) );
+        console.log('got actions', actions.length);
+        return actions;
+    }
+
+    async getActions2(){
+        console.log('getting actions')
+        let requestAddress = `${this.eosconfig.httpEndpoint}/v1/history/get_actions/${this.contract}?skip=${this.state.getState(this.contract)}&limit=${this.opt.batch_size}&sort=1`;
+        let actions = await axios.get(requestAddress)
+        .then(data => {
+            return data.data.actions;
+        }).catch(err => console.log(err) );
+        console.log('got actions', actions.length);
+        return actions;
     }
 
 

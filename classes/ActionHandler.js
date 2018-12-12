@@ -17,14 +17,14 @@ class ActionHandler{
 
             console.log(colors.green(`Found registered action: "${handler}${colors.yellow.bold('*')}"`) );
             try{
-                return this.handlers['*'](actiondata, state, eosapi);
+                return await this.handlers['*'](actiondata, state, eosapi);
             }catch(e){console.log('error', e)}
         }
         else if(handler in this.handlers){
 
             console.log(colors.green(`Found registered action: "${handler}"`) );
             try{
-                return this.handlers[handler](actiondata, state, eosapi);
+                return await this.handlers[handler](actiondata, state, eosapi);
             }catch(e){console.log('error', e)}
             
         }
