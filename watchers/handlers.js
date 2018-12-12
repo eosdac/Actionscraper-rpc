@@ -26,6 +26,7 @@ function getBalance(asset){
 
 }
 
+
 /////////////////////////////////////
 //handler for custodian contract
 /////////////////////////////////////
@@ -39,6 +40,7 @@ const custodianHandler = {
             let data = getDefaultData(actiondata);
             data.profile = actiondata.act.data.profile;
             await state.db.collection('profiles').updateOne({ _id: id }, {$set:data}, { upsert: true } );
+            return true;
             
     }
 }
@@ -146,7 +148,9 @@ const msigHandler = {
         data.provided_approvals = votes.provided_approvals;
         data.requested_approvals = votes.requested_approvals;
         //unpack msig transaction
+        await eos.fc.abiCache.abiAsync('dacelections');
         data.trx = await eos.fc.fromBuffer('transaction', proposal.packed_transaction);
+
 
         //unpack action(s) data in msig transaction
         let temp = []; 
@@ -155,6 +159,7 @@ const msigHandler = {
             data.trx.actions[i].data = unpacked;
             temp.push(data.trx.actions[i]);
         }
+        
         data.trx.actions = temp;
         // data.type = data.trx.actions[0].name;
         if(proposal.proposal_name === data.proposal_name){
