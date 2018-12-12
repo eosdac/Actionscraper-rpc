@@ -38,7 +38,7 @@ const custodianHandler = {
        
             let id = actiondata.act.data.cand;
             let data = getDefaultData(actiondata);
-            data.profile = actiondata.act.data.profile;
+            data.profile = JSON.parse(actiondata.act.data.profile);
             await state.db.collection('profiles').updateOne({ _id: id }, {$set:data}, { upsert: true } );
             return true;
             
