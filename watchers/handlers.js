@@ -112,11 +112,13 @@ const msigHandler = {
 
     proposed : async (actiondata, state, eos) => {
 
+        //init data object
         let data = {};
-        data._id = actiondata.trx_id;
+        data._id = actiondata.trx_id; //add id
         data.proposer = actiondata.act.data.proposer;
         data.proposal_name = actiondata.act.data.proposal_name;
-        
+
+        //query chain...
         let proms = [
 
             (await eos.rpc.get_table_rows({
@@ -137,18 +139,34 @@ const msigHandler = {
                 table: 'approvals'
             }) ).rows[0]
         ]
-        
+        //...resolve promises
         let [proposal, votes] =  await Promise.all(proms);
-        if(!proposal && !votes){
-            return false;
-        }
+        if(!proposal || !votes) return false;
+        
+
+        //set meta data
+        let metadata =IsJsonString(actiondata.act.data.metadata)? JSON.parse(actiondata.act.data.metadata): {title:'', description:''};
+        data.title = metadata.title;
+        data.description = metadata.description;
+
+        //set requested and provided approvals/votes
         data.provided_approvals = votes.provided_approvals;
         data.requested_approvals = votes.requested_approvals;
 
+        //unpack transaction + actions
         let unpackedtrx = eos.deserializeTransaction(Serialize.hexToUint8Array(proposal.packed_transaction) );
         unpackedtrx.actions = await eos.deserializeActions(unpackedtrx.actions);
         data.trx = unpackedtrx;
-        console.log(data)
+
+        //todo find highest required threshold 
+        //...
+
+        //todo update state/database 
+        //...
+
+
+        console.log(data);
+        return true;
     },
 
     approved : async (actiondata, state) => {
