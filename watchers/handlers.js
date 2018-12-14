@@ -143,7 +143,6 @@ const msigHandler = {
         let [proposal, votes] =  await Promise.all(proms);
         if(!proposal || !votes) return false;
         
-
         //set meta data
         let metadata =IsJsonString(actiondata.act.data.metadata)? JSON.parse(actiondata.act.data.metadata): {title:'', description:''};
         data.title = metadata.title;
@@ -153,19 +152,40 @@ const msigHandler = {
         data.provided_approvals = votes.provided_approvals;
         data.requested_approvals = votes.requested_approvals;
 
-        //unpack transaction + actions
+        //set unpacked transaction + actions
         let unpackedtrx = eos.deserializeTransaction(Serialize.hexToUint8Array(proposal.packed_transaction) );
         unpackedtrx.actions = await eos.deserializeActions(unpackedtrx.actions);
         data.trx = unpackedtrx;
 
-        //todo find highest required threshold 
-        //...
+        //get authorization from each action actor@permission
+        let auths = [].concat(...data.trx.actions.map(a=> a.authorization) ).map(b => b.actor+'@'+b.permission);
+        //remove duplicates
+        auths = Array.from(new Set(auths) );
 
-        //todo update state/database 
-        //...
+        //get threshold for each authorization
+        const threshold_map = {active: 10, low: 7, med: 9, high: 10, one: 1};
+        ///////////////////////////////////////////////////////////////////////
+        let ta = [];
+        for(let i = 0; i < auths.length; i++){
+            [actor, permission] = auths[i].split('@');
+            
+            if(actor == 'dacauthority'){
+                ta.push(threshold_map[permission])
+            }
+            else{
+                let perm = (await eos.rpc.get_account( actor )).permissions;
+                perm = perm.find(p => p.perm_name == permission);
+                perm = perm.required_auth.accounts.find(x => x.permission.actor == 'dacauthority');
+                perm = perm.permission.permission;
+                // console.log(util.inspect(perm, false, null, true))
+                ta.push(threshold_map[perm])
+            }
 
+        }
+        //find highest required threshold
+        data.threshold = Math.max(...ta);
 
-        console.log(data);
+        console.log(util.inspect(data, false, null, true))
         return true;
     },
 
