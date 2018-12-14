@@ -117,6 +117,8 @@ const msigHandler = {
         data._id = actiondata.trx_id; //add id
         data.proposer = actiondata.act.data.proposer;
         data.proposal_name = actiondata.act.data.proposal_name;
+        data.irreversible = actiondata.irreversible;
+        data.status = 1; //0:cancelled; 1:active; 2:executed
 
         //query chain...
         let proms = [
@@ -137,11 +139,20 @@ const msigHandler = {
                 lower_bound: data.proposal_name,
                 scope: data.proposer,
                 table: 'approvals'
+            }) ).rows[0],
+
+            (await eos.rpc.get_table_rows({
+                code: config.contracts.custodian,
+                json: true,
+                limit: 1,
+                scope: config.contracts.custodian,
+                table: 'config'
             }) ).rows[0]
         ]
         //...resolve promises
-        let [proposal, votes] =  await Promise.all(proms);
-        if(!proposal || !votes) return false;
+        let [proposal, votes, cust_config] =  await Promise.all(proms);
+        if(!proposal || !votes || !cust_config) return false;
+        // console.log(cust_config)
         
         //set meta data
         let metadata =IsJsonString(actiondata.act.data.metadata)? JSON.parse(actiondata.act.data.metadata): {title:'', description:''};
@@ -163,29 +174,33 @@ const msigHandler = {
         auths = Array.from(new Set(auths) );
 
         //get threshold for each authorization
-        const threshold_map = {active: 10, low: 7, med: 9, high: 10, one: 1};
+        const threshold_map = {active: cust_config.auth_threshold_high, low: cust_config.auth_threshold_low, med: cust_config.auth_threshold_mid, high: cust_config.auth_threshold_high, one: 1};
         ///////////////////////////////////////////////////////////////////////
         let ta = [];
         for(let i = 0; i < auths.length; i++){
             [actor, permission] = auths[i].split('@');
             
-            if(actor == 'dacauthority'){
+            if(actor == cust_config.authaccount){
                 ta.push(threshold_map[permission])
             }
             else{
-                let perm = (await eos.rpc.get_account( actor )).permissions;
+                let perm = (await eos.rpc.get_account(actor)  ).permissions;
                 perm = perm.find(p => p.perm_name == permission);
-                perm = perm.required_auth.accounts.find(x => x.permission.actor == 'dacauthority');
+                perm = perm.required_auth.accounts.find(x => x.permission.actor == cust_config.authaccount);
                 perm = perm.permission.permission;
                 // console.log(util.inspect(perm, false, null, true))
-                ta.push(threshold_map[perm])
+                ta.push(threshold_map[perm]);
             }
 
         }
         //find highest required threshold
         data.threshold = Math.max(...ta);
-
-        console.log(util.inspect(data, false, null, true))
+        // console.log(util.inspect(data, false, null, true));
+        let c = await state.db.collection('msigproposals').updateOne(
+            {_id: data._id },
+            {$set: data},
+            { upsert: true }
+        );
         return true;
     },
 
@@ -201,7 +216,15 @@ const msigHandler = {
        
     },
 
-    cancelled : async (actiondata, state) => {
+    cancelled : async (actiondata, state, eos) => {
+
+        console.log(actiondata.act.data.proposer, actiondata.act.data.proposal_name);
+        let c = await state.db.collection('msigproposals').updateOne(
+            {proposer: actiondata.act.data.proposer, proposal_name: actiondata.act.data.proposal_name, status:1 },
+            {$set: {status:0} },
+            { upsert: true }
+        );
+        return true;
        
     }
 }
