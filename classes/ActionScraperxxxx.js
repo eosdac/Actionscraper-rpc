@@ -1,8 +1,4 @@
-const { Api, JsonRpc, Serialize } = require('eosjs');
-const { TextDecoder, TextEncoder } = require('text-encoding');
-const fetch = require('node-fetch');
-
-// const eosjs = require('eosjs');
+const eosjs = require('eosjs');
 const colors = require('colors/safe');
 const axios = require('axios');
 
@@ -61,8 +57,8 @@ class ActionScraper{
         //get actions
         let actions = await this.getActions2();
         
-        let last_irr_block_num = (await this.eos.rpc.get_info({}) ).last_irreversible_block_num;
-        console.log('got last irreversible block', last_irr_block_num);
+        let last_irr_block_num = (await this.eos.getInfo({})).last_irreversible_block_num;
+        console.log('gt last irreversible block', last_irr_block_num);
         //some feedback
         console.log(colors.magenta('state.pos', this.state.getState(this.contract) ) );
         console.log('actions.length', actions.length);
@@ -179,7 +175,7 @@ class ActionScraper{
     async _validateActionHandler(){
 
         try{
-            let abi = await this.eos.rpc.get_abi(this.contract);
+            let abi = await this.eos.getAbi(this.contract);
             if(!abi.abi && abi.account_name){
                 console.log(colors.yellow(`The account ${this.contract} has no ABI set.`));
                 return false;
@@ -201,11 +197,10 @@ class ActionScraper{
 
     _initEos(eosconfig){
         
-        // this.eos = eosjs(eosconfig);
+        this.eos = eosjs(eosconfig);
 
-        let chainid = eosconfig.chainId;
-        const rpc = new JsonRpc(eosconfig.httpEndpoint, { fetch });
-        this.eos = new Api({rpc, chainid, textDecoder: new TextDecoder(), textEncoder: new TextEncoder(), Serialize} );
+        // const rpc = new JsonRpc(eosconfig.httpEndpoint, { fetch });
+        // this.eos = new Api({rpc, eosconfig.chainId, textDecoder: new TextDecoder(), textEncoder: new TextEncoder()} );
 
         console.log(colors.green('Connected to EOS') );
     }

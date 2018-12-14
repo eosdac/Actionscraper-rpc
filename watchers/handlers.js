@@ -1,5 +1,6 @@
 const {config} = require('./config');
 const util = require('util');
+const { Serialize } = require('eosjs');
 
 //helper function to extract required default data from action.
 function getDefaultData(actiondata){
@@ -116,9 +117,9 @@ const msigHandler = {
         data.proposer = actiondata.act.data.proposer;
         data.proposal_name = actiondata.act.data.proposal_name;
         
-
         let proms = [
-            (await eos.getTableRows({
+
+            (await eos.rpc.get_table_rows({
                 code: 'eosiomsigold',
                 json: true,
                 limit: 1,
@@ -127,7 +128,7 @@ const msigHandler = {
                 table: 'proposal'
             }) ).rows[0],
 
-            (await eos.getTableRows({
+            (await eos.rpc.get_table_rows({
                 code: 'eosiomsigold',
                 json: true,
                 limit: 1,
@@ -138,48 +139,16 @@ const msigHandler = {
         ]
         
         let [proposal, votes] =  await Promise.all(proms);
-
         if(!proposal && !votes){
             return false;
         }
-        let metadata =IsJsonString(actiondata.act.data.metadata)? JSON.parse(actiondata.act.data.metadata): {title:'', description:''};
-
-        data.title = metadata.title;
-        data.description = metadata.description;
-
         data.provided_approvals = votes.provided_approvals;
         data.requested_approvals = votes.requested_approvals;
-        //unpack msig transaction
-        await eos.fc.abiCache.abiAsync('dacelections');
-        data.trx = await eos.fc.fromBuffer('transaction', proposal.packed_transaction);
 
-
-        //unpack action(s) data in msig transaction
-        let temp = []; 
-        for(let i = 0; i < data.trx.actions.length; i++){
-            let unpacked = await eos.abiBinToJson(data.trx.actions[i].account, data.trx.actions[i].name, data.trx.actions[i].data);
-            data.trx.actions[i].data = unpacked;
-            temp.push(data.trx.actions[i]);
-        }
-        
-        data.trx.actions = temp;
-        // data.type = data.trx.actions[0].name;
-        if(proposal.proposal_name === data.proposal_name){
-            // console.log(data);
-            console.log(util.inspect(data, false, null, true /* enable colors */))
-        }
-        return true;
-        
-        // let c = await state.db.collection('msigproposals').updateOne(
-        //     {_id: data.recv_sequence },
-        //     {$set: data},
-        //     { upsert: true }
-        // );
-
-        // if(c.result.upserted){
-
-        // }
-       
+        let unpackedtrx = eos.deserializeTransaction(Serialize.hexToUint8Array(proposal.packed_transaction) );
+        unpackedtrx.actions = await eos.deserializeActions(unpackedtrx.actions);
+        data.trx = unpackedtrx;
+        console.log(data)
     },
 
     approved : async (actiondata, state) => {
