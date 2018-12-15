@@ -61,7 +61,8 @@ class ActionScraper{
         //get actions
         let actions = await this.getActions2();
         
-        let last_irr_block_num = (await this.eos.rpc.get_info({}) ).last_irreversible_block_num;
+        let last_irr_block_num = await this.eos.rpc.get_info({}).then(x => x.last_irreversible_block_num).catch(e => {return true});
+
         console.log('got last irreversible block', last_irr_block_num);
         //some feedback
         console.log(colors.magenta('state.pos', this.state.getState(this.contract) ) );
