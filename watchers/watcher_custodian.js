@@ -5,7 +5,8 @@ const {config} = require('./config');
 const {custodianHandler} = require('./handlers');
 
 const scraperConfig = {
-    batch_size : 1000
+    batch_size : 1000,
+    loop_delay: 3000
 };
 
 
