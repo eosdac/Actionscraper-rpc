@@ -171,7 +171,7 @@ class ActionScraper{
         let actions = await axios.get(requestAddress)
         .then(data => {
             return data.data.actions;
-        }).catch(err => console.log(err) );
+        }).catch(err => {console.log(err); return []; } );
         console.log('got actions', actions.length);
         return actions;
     }
