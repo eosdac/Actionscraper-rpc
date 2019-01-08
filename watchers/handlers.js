@@ -55,7 +55,7 @@ const tokenHandler = {
 
     issue : async (actiondata, state) => {
         if(actiondata.irreversible){
-            let a = await state.db.collection('balances2').updateOne(
+            let a = await state.db.collection('balances').updateOne(
                 { _id: actiondata.act.data.to }, 
                 { $inc: { quantity: getBalance(actiondata.act.data.quantity) } }, 
                 { upsert: true } 
@@ -68,34 +68,36 @@ const tokenHandler = {
         if(actiondata.irreversible){
             let amount =  getBalance(actiondata.act.data.quantity);
             //do something with irreversible transfer
-            let data = getDefaultData(actiondata)
+            let data = getDefaultData(actiondata);
             data.from = actiondata.act.data.from;
             data.to = actiondata.act.data.to;
             data.quantity = actiondata.act.data.quantity;
+            data.quantity2 = amount;
             data.receiver = actiondata.receipt.receiver;
             data.recv_sequence = actiondata.receipt.recv_sequence;
             data.account = actiondata.act.account;
             
-            
+            // let c = await state.db.collection('transfers').updateOne(
+            //     { recv_sequence: data.recv_sequence },
+            //     { $set: data},
+            //     { upsert: true }
+            // );
 
-            let c = await state.db.collection('transfers3').updateOne(
-                {recv_sequence: data.recv_sequence },
-                {$set: data},
-                { upsert: true }
-            );
+            let c = await state.db.collection('transfers').insertOne(data);
 
-            if(c.result.upserted){
-                let a = await state.db.collection('balances3').updateOne(
+            // if(c.result.upserted){
+                let a = await state.db.collection('balances').updateOne(
                     { _id: actiondata.act.data.from }, 
                     { $inc: { quantity: -amount } }, 
                     { upsert: true } 
                 );
-                let b = await state.db.collection('balances3').updateOne(
+
+                let b = await state.db.collection('balances').updateOne(
                     { _id: actiondata.act.data.to }, 
                     { $inc: { quantity: amount } }, 
                     { upsert: true } 
                 );
-            }
+            // }
 
             return true;
         }
@@ -111,14 +113,14 @@ const msigHandler = {
     account_name : config.contracts.msig,
 
     proposed : async (actiondata, state, eos) => {
-
+        // console.log(actiondata)
         //init data object
         let data = {};
         data._id = actiondata.trx_id; //add id
         data.proposer = actiondata.act.data.proposer;
         data.proposal_name = actiondata.act.data.proposal_name;
         data.irreversible = actiondata.irreversible;
-        data.status = 1; //0:cancelled; 1:active; 2:executed
+        data.status = 1; // 0:cancelled; 1:active; 2:executed !important!
 
         //query chain...
         let proms = [
@@ -162,6 +164,7 @@ const msigHandler = {
         //set requested and provided approvals/votes
         data.provided_approvals = votes.provided_approvals;
         data.requested_approvals = votes.requested_approvals;
+        data.custodianboard = [...votes.provided_approvals, ...votes.requested_approvals];
 
         //set unpacked transaction + actions
         let unpackedtrx = eos.deserializeTransaction(Serialize.hexToUint8Array(proposal.packed_transaction) );
@@ -204,21 +207,26 @@ const msigHandler = {
         return true;
     },
 
-    approved : async (actiondata, state) => {
+    // approved : async (actiondata, state) => {
        
-    },
+    // },
 
-    unapproved : async (actiondata, state) => {
+    // unapproved : async (actiondata, state) => {
        
-    },
+    // },
 
     executed : async (actiondata, state) => {
-       
+        // console.log(actiondata.act.data.proposer, actiondata.act.data.proposal_name);
+        let c = await state.db.collection('msigproposals').updateOne(
+            {proposer: actiondata.act.data.proposer, proposal_name: actiondata.act.data.proposal_name, status:1 },
+            {$set: {status:2} },
+            { upsert: true }
+        );
+        return true;
     },
 
     cancelled : async (actiondata, state, eos) => {
-
-        console.log(actiondata.act.data.proposer, actiondata.act.data.proposal_name);
+        // console.log(actiondata.act.data.proposer, actiondata.act.data.proposal_name);
         let c = await state.db.collection('msigproposals').updateOne(
             {proposer: actiondata.act.data.proposer, proposal_name: actiondata.act.data.proposal_name, status:1 },
             {$set: {status:0} },

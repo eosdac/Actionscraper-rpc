@@ -147,7 +147,7 @@ class ActionScraper{
 
     async getActions(){
         console.log('getting actions')
-        let actions = await this.eos.getActions({account_name: this.contract, pos: this.state.getState(this.contract)+1, offset: this.opt.batch_size-1}).then( a =>{
+        let actions = await this.eos.rpc.history_get_actions({account_name: this.contract, pos: this.state.getState(this.contract)+1, offset: this.opt.batch_size-1}).then( a =>{
             if(!a.actions.length){
               console.log(colors.yellow('no new actions found after seq '));
 
