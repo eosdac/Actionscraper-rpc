@@ -116,7 +116,8 @@ const msigHandler = {
         // console.log(actiondata)
         //init data object
         let data = {};
-        data._id = actiondata.trx_id; //add id
+        data._id = actiondata._id; //add id
+        data.trxid = actiondata.trx_id;
         data.proposer = actiondata.act.data.proposer;
         data.proposal_name = actiondata.act.data.proposal_name;
         data.irreversible = actiondata.irreversible;
@@ -208,11 +209,21 @@ const msigHandler = {
     },
 
     // approved : async (actiondata, state) => {
-       
+    //     let proposer = actiondata.act.data.proposer;
+    //     let proposal_name = actiondata.act.data.proposal_name;
+    //     let votes = (await eos.rpc.get_table_rows({
+    //         code: 'eosiomsigold',
+    //         json: true,
+    //         limit: 1,
+    //         lower_bound: proposal_name,
+    //         scope: proposer,
+    //         table: 'approvals'
+    //     }) ).rows[0];
+
     // },
 
     // unapproved : async (actiondata, state) => {
-       
+    //     console.log(actiondata)
     // },
 
     executed : async (actiondata, state) => {
@@ -220,7 +231,7 @@ const msigHandler = {
         let c = await state.db.collection('msigproposals').updateOne(
             {proposer: actiondata.act.data.proposer, proposal_name: actiondata.act.data.proposal_name, status:1 },
             {$set: {status:2} },
-            { upsert: true }
+            { upsert: false }
         );
         return true;
     },
@@ -230,7 +241,7 @@ const msigHandler = {
         let c = await state.db.collection('msigproposals').updateOne(
             {proposer: actiondata.act.data.proposer, proposal_name: actiondata.act.data.proposal_name, status:1 },
             {$set: {status:0} },
-            { upsert: true }
+            { upsert: false }
         );
         return true;
        
