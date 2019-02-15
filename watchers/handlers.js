@@ -160,8 +160,8 @@ const msigHandler = {
         // console.log(cust_config)
         
         //set meta data
-        
-        let metadata =IsJsonString(actiondata.act.data.metadata.replace(/\n/g, "\\n"))? JSON.parse(actiondata.act.data.metadata.replace(/\n/g, "\\n") ): {title:'', description:''};
+        actiondata.act.data.metadata = actiondata.act.data.metadata.replace(/\n/g, "\\n");
+        let metadata =IsJsonString(actiondata.act.data.metadata)? JSON.parse(actiondata.act.data.metadata ): {title:'', description:''};
         data.title = metadata.title;
         data.description = metadata.description;
 
