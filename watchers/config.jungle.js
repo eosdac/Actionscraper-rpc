@@ -13,7 +13,8 @@ const config = {
     contracts:{
         custodian: 'dacelections',
         token: 'kasdactokens',
-        msig: 'dacmultisigs'
+        msig: 'dacmultisigs',
+        systemmsig: 'eosiomsigold'
     }
 
 }

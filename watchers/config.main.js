@@ -13,7 +13,8 @@ const config = {
     contracts:{
         custodian: 'daccustodian',
         token: 'eosdactokens',
-        msig: 'dacmultisigs'
+        msig: 'dacmultisigs',
+        systemmsig: 'eosio.msig'
     }
 
 }

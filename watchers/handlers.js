@@ -129,7 +129,7 @@ const msigHandler = {
         let proms = [
 
             (await eos.rpc.get_table_rows({
-                code: 'eosiomsigold',
+                code: config.contracts.systemmsig,
                 json: true,
                 limit: 1,
                 lower_bound: data.proposal_name,
@@ -138,7 +138,7 @@ const msigHandler = {
             }) ).rows[0],
 
             (await eos.rpc.get_table_rows({
-                code: 'eosiomsigold',
+                code: config.contracts.systemmsig,
                 json: true,
                 limit: 1,
                 lower_bound: data.proposal_name,
