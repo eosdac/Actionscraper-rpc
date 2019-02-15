@@ -214,7 +214,7 @@ const msigHandler = {
     //     let proposer = actiondata.act.data.proposer;
     //     let proposal_name = actiondata.act.data.proposal_name;
     //     let votes = (await eos.rpc.get_table_rows({
-    //         code: 'eosiomsigold',
+    //         code: 'eosio.msig',
     //         json: true,
     //         limit: 1,
     //         lower_bound: proposal_name,
