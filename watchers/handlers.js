@@ -211,23 +211,71 @@ const msigHandler = {
         return true;
     },
 
-    // approved : async (actiondata, state) => {
-    //     let proposer = actiondata.act.data.proposer;
-    //     let proposal_name = actiondata.act.data.proposal_name;
-    //     let votes = (await eos.rpc.get_table_rows({
-    //         code: 'eosio.msig',
-    //         json: true,
-    //         limit: 1,
-    //         lower_bound: proposal_name,
-    //         scope: proposer,
-    //         table: 'approvals'
-    //     }) ).rows[0];
+    approved : async (actiondata, state, eos) => {
+        if(!actiondata.irreversible){
+            return;
+        }   
+        let proposer = actiondata.act.data.proposer;
+        let proposal_name = actiondata.act.data.proposal_name;
+        console.log(proposer, proposal_name)
+        let votes = await eos.rpc.get_table_rows({
+            code: config.contracts.systemmsig,
+            json: true,
+            limit: 1,
+            lower_bound: proposal_name,
+            scope: proposer,
+            table: 'approvals'
+        }).catch(e=>{return false})
 
-    // },
+        if(!votes){
+            return;
+        }
+        votes = votes.rows[0];
 
-    // unapproved : async (actiondata, state) => {
-    //     console.log(actiondata)
-    // },
+        let data = {};
+        data.provided_approvals = votes.provided_approvals;
+        data.requested_approvals = votes.requested_approvals;
+
+        let c = await state.db.collection('msigproposals').updateOne(
+            {proposer: proposer, proposal_name: proposal_name },
+            {$set: data},
+            { upsert: true }
+        );
+        return true;
+    },
+
+    unapproved : async (actiondata, state, eos) => {
+        if(!actiondata.irreversible){
+            return;
+        }   
+        let proposer = actiondata.act.data.proposer;
+        let proposal_name = actiondata.act.data.proposal_name;
+        console.log(proposer, proposal_name)
+        let votes = await eos.rpc.get_table_rows({
+            code: config.contracts.systemmsig,
+            json: true,
+            limit: 1,
+            lower_bound: proposal_name,
+            scope: proposer,
+            table: 'approvals'
+        }).catch(e=>{return false})
+
+        if(!votes){
+            return;
+        }
+        votes = votes.rows[0];
+
+        let data = {};
+        data.provided_approvals = votes.provided_approvals;
+        data.requested_approvals = votes.requested_approvals;
+
+        let c = await state.db.collection('msigproposals').updateOne(
+            {proposer: proposer, proposal_name: proposal_name },
+            {$set: data},
+            { upsert: true }
+        );
+        return true;
+    },
 
     executed : async (actiondata, state) => {
         // console.log(actiondata.act.data.proposer, actiondata.act.data.proposal_name);
