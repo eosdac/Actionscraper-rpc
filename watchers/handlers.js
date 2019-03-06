@@ -227,7 +227,7 @@ const msigHandler = {
             table: 'approvals'
         }).catch(e=>{return false})
 
-        if(!votes){
+        if(!votes || !votes.rows[0]){
             return;
         }
         votes = votes.rows[0];
@@ -260,7 +260,7 @@ const msigHandler = {
             table: 'approvals'
         }).catch(e=>{return false})
 
-        if(!votes){
+        if(!votes || !votes.rows[0] ){
             return;
         }
         votes = votes.rows[0];
