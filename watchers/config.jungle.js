@@ -7,13 +7,13 @@ const config = {
 
     db: {
         mongoUrl: 'mongodb://localhost:27017/',
-        dbName: 'eosdac'
+        dbName: 'dac'
     },
 
     contracts:{
-        custodian: 'dacelections',
-        token: 'kasdactokens',
-        msig: 'dacmultisigs',
+        custodian: 'daccustodia1',
+        token: 'dactoken1111',
+        msig: 'dacmultisig1',
         systemmsig: 'eosiomsigold'
     }
 
